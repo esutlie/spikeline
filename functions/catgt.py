@@ -19,8 +19,12 @@ def catgt(input_path, output_path):
     #           f'-prb=0 -ni {event_extractors} -dest={output_path} -prb_fld -out_prb_fld -pass1_force_ni_ob_bin'
     # command = f'runit.bat -dir={input_path} -run={run_name[0:-3]} -prb_fld -g={run_name[-1]},{run_name[-1]} -t=0,0 -ap ' \
     #           f'-prb=0 -ni {event_extractors} -dest={output_path} -out_prb_fld -pass1_force_ni_ob_bin'
-    print(os.system(f"cd {os.path.join(tools_path, 'CatGT-win')} & {command}"))
-    print(f'{run_name} done')
+    result = os.system(f"cd {os.path.join(tools_path, 'CatGT-win')} & {command}")
+    if result == 0:
+        print(f'{run_name} done')
+    else:
+        print(f'{run_name} catgt failed with exit code {result}. Check catgt.log in {tools_path}')
+
 
 
 if __name__ == '__main__':

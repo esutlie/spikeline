@@ -9,6 +9,7 @@ from sklearn.linear_model import LinearRegression
 import pandas as pd
 from csv import DictReader
 import shutil
+from file_paths import root_file_paths
 
 
 def pi_process(file_paths, session_list):
@@ -162,27 +163,9 @@ def preprocess_data(filename, mouse, return_info=False, verbose=False, date_rang
         return info
     return data
 
-def move_final_data(file_paths, session_list, dest=os.path.join('C://', 'processed_data')):
-    for session in session_list['external_path']:
-        path = os.path.join(file_paths['external_path'], session, 'processed_data')
-        dest_path = os.path.join(dest, session)
-        if os.path.exists(path):
-            if not os.path.exists(dest):
-                os.mkdir(dest)
-            if not os.path.exists(dest_path):
-                shutil.copytree(path, dest_path)
-
 
 
 if __name__ == '__main__':
-    file_paths = {
-        'origin_path': os.path.join('D:\\', 'recordings'),
-        'external_path': os.path.join('E:\\', 'neuropixel_data'),
-        'phy_ready_path': os.path.join('C:\\', 'phy_ready'),
-        'phy_holding_path': os.path.join('E:\\', 'phy_holding'),
-        'pi_path': os.path.join('C:\\', 'Users', 'Elissa', 'GoogleDrive', 'Code', 'Python', 'behavior_code', 'data'),
-        'processed_data': os.path.join('C:\\', 'processed_data')
-    }
+    file_paths = root_file_paths()
     session_list, file_list = generate_file_lists(file_paths=file_paths)
-    # pi_process(file_paths, session_list)
-    move_final_data(file_paths, session_list)
+    pi_process(file_paths, session_list)

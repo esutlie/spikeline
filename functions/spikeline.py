@@ -35,6 +35,7 @@ def remove_empty_or_one(sorter):
     units_to_keep = np.unique(units_to_keep)
     return sorter.select_units(units_to_keep)
 
+
 def spikeline(data_path, phy_folder, working_folder=os.path.join('C:\\', 'phy_temp')):
     n_jobs = -1
 
@@ -105,7 +106,6 @@ def spikeline(data_path, phy_folder, working_folder=os.path.join('C:\\', 'phy_te
     # kilosort2_5_folder = os.path.join(working_folder, 'kilosort2_50')
     # ks2_5_sorter = si.read_sorter_folder(kilosort2_5_folder)
 
-
     hdd = psutil.disk_usage('/')
     print(f'remaining disk: {hdd.free / (2 ** 30)} GiB')
 
@@ -123,7 +123,8 @@ def spikeline(data_path, phy_folder, working_folder=os.path.join('C:\\', 'phy_te
         (normalize(np.max(abs(kilosort3_templates[int(unit['kilosort3']), :, :]), axis=0, keepdims=True)) -
          normalize(np.max(abs(kilosort2_5_templates[int(unit['kilosort2_5']), :, :]), axis=0,
                           keepdims=True))) ** 2) for unit in agreement._properties['unit_ids']]) / 2
-    print(f'template filtering would remove {len(np.where(template_similarty >= .9)[0])} from {len(agreement.unit_ids)}')
+    print(
+        f'template filtering would remove {len(np.where(template_similarty >= .9)[0])} from {len(agreement.unit_ids)}')
     agreement = agreement.select_units(agreement.unit_ids[np.where(template_similarty < .9)[0]])
     consensus_folder = reset_folder(os.path.join(working_folder, 'consensus'), local=False)
     agreement = agreement.save(folder=consensus_folder)

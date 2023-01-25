@@ -28,7 +28,7 @@ import boto3
 #             # Return all paths
 #     return directory_list
 
-\
+
 def get_file_paths_in_s3_bucket(bucket_name):
     s3 = boto3.client('s3')
     bucket = s3.list_objects(Bucket=bucket_name)
