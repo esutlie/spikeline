@@ -66,32 +66,24 @@ def same_unit_lists(file_paths, session_list):
                                     template2_trimmed = template2[u2, :, min_trim2:max_trim2]
                                     similarity = math.sqrt(sum(sum((template1_trimmed - template2_trimmed) ** 2)))
                                 else:
-                                    similarity = np.inf
+                                    similarity = 0
                             unit_similarity[u1_ind, u2_ind] = similarity
                 per_sess2_list.append(unit_similarity)
             per_sess1_list.append(per_sess2_list)
         per_mouse_list.append(per_sess1_list)
     for i, mouse in enumerate(np.unique(mouse_ids)):
         similarities = per_mouse_list[i]
+        flat_list = [val.tolist() for sublist in similarities for val in sublist]
+        flat_list2 = [val for sublist in flat_list for val in sublist]
+        flat_list3 = [val for sublist in flat_list2 for val in sublist]
+        flat_list4 = [val if val != np.inf else 0 for val in flat_list3]
+        flat_list5 = [val for val in flat_list4 if val != 0]
+        plt.hist(flat_list5, bins=1000, range=(0, 500))
+        plt.show()
 
+        np.column_stack([val for sublist in similarities for val in sublist])
 
     print('test')
-
-
-    # dest_path = os.path.join(dest, session)
-    # if os.path.exists(path):
-    #     if not os.path.exists(dest):
-    #         os.mkdir(dest)
-    #     if not os.path.exists(dest_path):
-    #         shutil.copytree(path, dest_path)
-
-
-# def reemovNestings(l):
-#     for i in l:
-#         if type(i) == list:
-#             reemovNestings(i)
-#         else:
-#             output.append(i)
 
 
 if __name__ == '__main__':
