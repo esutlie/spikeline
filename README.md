@@ -1,4 +1,4 @@
-<h3 align="center">data_transfer</h3>
+<h3 align="center">spikeline</h3>
   <p align="center">
     Spike sorting pipeline for generating consensus units from neuropixel recordings.
 
@@ -24,7 +24,7 @@ Follow install and requirements instructions from the Spike Interface and Kiloso
 
 Clone the repo
    ```sh
-   git clone https://github.com/esutlie/data_transfer.git
+   git clone https://github.com/esutlie/spikeline.git
    ```
 
 Change the directories to point to your installations of Kilosort 2.5 and Kilosort3
@@ -75,7 +75,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 Elissa Sutlief - elissasutlief@gmail.com
 
-Project Link: [https://github.com/esutlie/data_transfer](https://github.com/esutlie/data_transfer)
+Project Link: [https://github.com/esutlie/spikeline](https://github.com/esutlie/spikeline)
 
 
 <!-- ACKNOWLEDGMENTS -->
