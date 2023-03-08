@@ -42,7 +42,7 @@ def root_file_paths():
     external_path=os.path.join('E:\\', 'neuropixel_data')  # A folder on an external hardrive or other accessbile storage location.
     phy_ready_path=os.path.join('C:\\', 'phy_ready')  # A temp folder that can hold sessions ready to be manually curated. Will take up a lot of space if multiple sessions are queued.
     phy_holding_path=os.path.join('E:\\', 'phy_holding')  # Depricated.
-    pi_path=os.path.join('C:\\', 'Users', 'Elissa', 'GoogleDrive', 'Code', 'Python', 'behavior_code', 'data')  # Location of the associated raspberry pi files.
+    pi_path=os.path.join('C:\\', 'behavior_code', 'data')  # Location of the associated raspberry pi files.
     processed_data=os.path.join('C:\\', 'processed_data')  # Final desination for processed data.
   
     file_paths = {
@@ -54,6 +54,13 @@ def root_file_paths():
         'processed_data': processed_data
     }
     return file_paths
+  ```
+  
+  Change the ```ks3_path``` and ```ks2_5_path``` variables in spikeline.py to your own.
+
+  ```sh
+ks3_path = os.path.join('C:\\', 'your_path', 'Kilosort3')
+ks2_5_path = os.path.join('C:\\', 'your_path', 'Kilosort2_5')
   ```
 
 <!-- LICENSE -->
