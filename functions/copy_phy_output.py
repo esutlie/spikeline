@@ -34,7 +34,7 @@ def copy_phy_output(session_list, file_paths):
 
             # Remove files from phy_ready folder
             shutil.rmtree(path)
-    print('finished copying phy output')
+        print('finished copying phy output')
 
 
 if __name__ == '__main__':

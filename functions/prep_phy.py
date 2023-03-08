@@ -1,11 +1,11 @@
 # prep_phy.py
 from functions.spikeline import spikeline
 from functions.check_files import check_session_files
+from functions.generate_file_lists import generate_file_lists
 import os
 import psutil
 import random
 from file_paths import root_file_paths
-from generate_file_lists import generate_file_lists
 
 
 def prep_phy(file_paths, session_list):

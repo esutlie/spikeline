@@ -1,4 +1,5 @@
-from functions import *
+from functions import sleep_if, copy_if_missing, google_copy, run_catgt, generate_file_lists, pi_process, prep_phy, \
+    copy_phy_output
 import os
 import shutil
 import pandas as pd
@@ -8,42 +9,34 @@ from file_paths import root_file_paths
 
 
 def run_pipeline():
-    # File paths:
-    file_paths = root_file_paths()
-
-
+    sleepy = False
     while True:
-        # Transfer new files
-        # sleep_if()
-        copy_if_missing(file_paths)
+        file_paths = root_file_paths()
+        sleep_if(sleepy)
+        copy_if_missing()  # Copy new files to external hard drive
 
-        # Run catgt on files where it's missing
-        # session_list, file_list = generate_file_lists(file_paths=file_paths)
-        # for session in session_list['external_path']:
-        #     if not os.path.isfile(os.path.join(file_paths['external_path'], session, 'catgt', session + '_imec0',
-        #                                        session + '_tcat.imec0.ap.xd_384_6_0.txt')):
-        #         path = os.path.join(file_paths['external_path'], session)
-        #         catgt(path, path)
+        sleep_if(sleepy)
+        # google_copy()  # Copy new files to google cloud storage
 
+        sleep_if(sleepy)
+        run_catgt()  # Run catgt anywhere it hasnt been run
 
-        # # Find pi file
-        # session_list, file_list = generate_file_lists(file_paths=file_paths)
-        # pi_process(file_paths, session_list)
+        # Find pi file
+        sleep_if(sleepy)
+        session_list, file_list = generate_file_lists(file_paths=file_paths)
+        pi_process(file_paths, session_list)
 
         # Run spike interface to get phy folder prepped
-        # sleep_if()
-        # session_list, file_list = generate_file_lists(file_paths=file_paths)
-        # prep_phy(file_paths, session_list, file_list)
+        sleep_if(sleepy)
+        session_list, file_list = generate_file_lists(file_paths=file_paths)
+        prep_phy(file_paths, session_list)
 
         # Transfer phy outputs if sorting is complete, and remove phy folder from prep
-        # sleep_if()
-        # try:
-        #     session_list, file_list = generate_file_lists(file_paths=file_paths)
-        #     copy_phy_output(session_list, file_paths)
-        # finally:
-        #     print('waited for copy_phy_output to finish')
-        #
-        # sleep(10)
+        sleep_if(sleepy)
+        session_list, file_list = generate_file_lists(file_paths=file_paths)
+        copy_phy_output(session_list, file_paths)
+
+        sleep(10)
         # break
 
 

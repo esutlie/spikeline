@@ -1,12 +1,12 @@
 # copy_if_missing.py
 import os
 import shutil
-from functions import generate_file_lists
+from functions.generate_file_lists import generate_file_lists
 from file_paths import root_file_paths
 
 
-def copy_if_missing(file_paths):
-
+def copy_if_missing():
+    file_paths = root_file_paths()
     session_list, file_list = generate_file_lists(file_paths=file_paths)
     for file in file_list['origin_path']:
         file_path = file.split(os.sep)
@@ -21,5 +21,4 @@ def copy_if_missing(file_paths):
 
 
 if __name__ == '__main__':
-    paths = root_file_paths()
-    copy_if_missing(paths)
+    copy_if_missing()
