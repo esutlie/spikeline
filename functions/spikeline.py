@@ -22,8 +22,13 @@ import spikeinterface.extractors as se
 import spikeinterface.comparison as sc
 from spikeinterface.exporters import export_to_phy
 
-os.environ['KILOSORT3_PATH'] = os.path.join('C:\\', 'github', 'Kilosort')
-os.environ['KILOSORT2_5_PATH'] = os.path.join('C:\\', 'github', 'Kilosort2_5')
+# Change these paths to your own
+ks3_path = os.path.join('C:\\', 'github', 'Kilosort')
+ks2_5_path = os.path.join('C:\\', 'github', 'Kilosort2_5')
+
+
+os.environ['KILOSORT3_PATH'] = ks3_path
+os.environ['KILOSORT2_5_PATH'] = ks2_5_path
 
 
 def remove_empty_or_one(sorter):
@@ -91,7 +96,7 @@ def spikeline(data_path, phy_folder, working_folder=os.path.join('C:\\', 'phy_te
     print(f'remaining disk: {hdd.free / (2 ** 30)} GiB')
 
     sorter_params = {"keep_good_only": True}
-    ss.Kilosort3Sorter.set_kilosort3_path(os.path.join('C:\\', 'github', 'Kilosort'))
+    ss.Kilosort3Sorter.set_kilosort3_path(ks3_path)
     print(f'starting kilosort3...')
 
     kilosort3_folder = reset_folder(os.path.join(working_folder, 'kilosort3'), local=False)
@@ -104,7 +109,7 @@ def spikeline(data_path, phy_folder, working_folder=os.path.join('C:\\', 'phy_te
     hdd = psutil.disk_usage('/')
     print(f'remaining disk: {hdd.free / (2 ** 30)} GiB')
     sorter_params = {"keep_good_only": False}
-    ss.Kilosort2_5Sorter.set_kilosort2_5_path(os.path.join('C:\\', 'github', 'Kilosort2_5'))
+    ss.Kilosort2_5Sorter.set_kilosort2_5_path(ks2_5_path)
     print(f'starting kilosort2_5...')
     kilosort2_5_folder = reset_folder(os.path.join(working_folder, 'kilosort2_5'), local=False)
     ks2_5_sorter = ss.run_sorter(sorter_name='kilosort2_5', recording=recording,
