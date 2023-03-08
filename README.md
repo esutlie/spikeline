@@ -11,6 +11,8 @@
 
 This is the postprocessing pipeline used by the Shuler lab to extract spike times from ephys recordings collected with Neuropixel Probes. It uses Spike Interface to run multiple sorting algorithms and find consensus units.
 
+![alt text](https://github.com/esutlie/spikeline/blob/png/Spikeline_pipeline.png?raw=true)
+
 
 <!-- GETTING STARTED -->
 ## Installation
