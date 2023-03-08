@@ -1,15 +1,9 @@
 # spikeline.py
 
 import os
-import json
-import glob
 import psutil
-import traceback
-import subprocess
 import numpy as np
-import logging as log
 from time import sleep
-from sys import platform
 from shutil import rmtree
 from functions.reset_folder import reset_folder
 from sklearn.preprocessing import normalize
