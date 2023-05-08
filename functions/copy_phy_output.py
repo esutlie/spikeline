@@ -4,12 +4,20 @@ import shutil
 import pandas as pd
 import numpy as np
 from functions.generate_file_lists import generate_file_lists
+from functions import check_progress
+from file_paths import root_file_paths
 
 
-def copy_phy_output(session_list, file_paths):
+def copy_phy_output():
+    file_paths = root_file_paths()
+    session_list, file_list = generate_file_lists(file_paths=file_paths)
     for session in session_list['phy_ready_path']:
         path = os.path.join(file_paths['phy_ready_path'], session)
         cluster_group_path = os.path.join(path, 'cluster_group.tsv')
+        if not os.path.exists(cluster_group_path):
+            shutil.rmtree(path)
+            print(f'{session} doesnt have cluster_group.tsv, found during copy_phy_output')
+            continue
         cluster_group = pd.read_csv(cluster_group_path, sep='\t')
         is_labeled = [label in ['good', 'mua', 'noise'] for label in cluster_group.group.values]
         if np.all(is_labeled):
@@ -34,16 +42,9 @@ def copy_phy_output(session_list, file_paths):
 
             # Remove files from phy_ready folder
             shutil.rmtree(path)
-        print('finished copying phy output')
+            print(f'finished copying phy output {session}')
 
 
 if __name__ == '__main__':
-    file_paths = {
-        'origin_path': os.path.join('D:\\', 'recordings'),
-        'external_path': os.path.join('E:\\', 'neuropixel_data'),
-        'phy_ready_path': os.path.join('C:\\', 'phy_ready'),
-        'phy_holding_path': os.path.join('E:\\', 'phy_holding'),
-        'pi_path': os.path.join('C:\\', 'Users', 'Elissa', 'GoogleDrive', 'Code', 'Python', 'behavior_code', 'data')
-    }
-    session_list, file_list = generate_file_lists(file_paths=file_paths)
-    copy_phy_output(session_list, file_paths)
+    copy_phy_output()
+    check_progress()

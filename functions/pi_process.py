@@ -10,24 +10,31 @@ import pandas as pd
 from csv import DictReader
 import shutil
 from file_paths import root_file_paths
+import json
 
 
-def pi_process(file_paths, session_list):
+def pi_process(regen=False):
+    file_paths = root_file_paths()
+    session_list, file_list = generate_file_lists(file_paths=file_paths)
     for session in session_list['external_path']:
         try:
-            if session not in session_list['pi_processed_list'] and session in session_list['phy_processed_list']:
+            if (session not in session_list['pi_processed_list'] or regen) \
+                    and session in session_list['phy_processed_list']:
                 meta_data = read_meta(Path(
-                    os.path.join(file_paths['external_path'], session, session + '_imec0', session + '_t0.imec0.ap.bin')))
+                    os.path.join(file_paths['external_path'], session, session + '_imec0',
+                                 session + '_t0.imec0.ap.bin')))
                 recording_time = meta_data['fileCreateTime']
                 dt_object = datetime.strptime(recording_time, "%Y-%m-%dT%H:%M:%S")
                 mouse = session[:5]
 
                 pi_file_names = [path.split(os.sep)[-1] for path in
                                  get_filepaths(os.path.join(file_paths['pi_path'], mouse))]
-                pi_file_times = [datetime.strptime(file_name[5:-4], "%Y-%m-%d_%H-%M-%S") for file_name in pi_file_names if
+                pi_file_times = [datetime.strptime(file_name[5:-4], "%Y-%m-%d_%H-%M-%S") for file_name in pi_file_names
+                                 if
                                  file_name != 'desktop.ini']
                 pi_file_name = 'data_' + pi_file_times[np.argmin([abs(file_time - dt_object) for file_time in
-                                                                  pi_file_times])].strftime("%Y-%m-%d_%H-%M-%S") + '.txt'
+                                                                  pi_file_times])].strftime(
+                    "%Y-%m-%d_%H-%M-%S") + '.txt'
                 pi_dir = os.path.join(file_paths['pi_path'], mouse, pi_file_name)
                 data_dir = os.path.join(file_paths['external_path'], session, 'processed_data')
                 phy_dir = os.path.join(file_paths['external_path'], session, 'phy_output')
@@ -39,15 +46,42 @@ def pi_process(file_paths, session_list):
                 templates = np.load(os.path.join(phy_dir, 'templates.npy'))
                 cluster_info = pd.read_csv(os.path.join(phy_dir, 'cluster_info.tsv'), sep='\t')
 
-                spikes = pd.DataFrame(np.concatenate([spike_times, np.expand_dims(spike_clusters, axis=1), spike_templates],
-                                                     axis=1), columns=['cycle', 'cluster', 'template'])
+                spikes = pd.DataFrame(
+                    np.concatenate([spike_times, np.expand_dims(spike_clusters, axis=1), spike_templates],
+                                   axis=1), columns=['cycle', 'cluster', 'template'])
                 spikes['time'] = spikes.cycle / hz
 
                 pi_events = pd.read_csv(pi_dir, na_values=['None'], skiprows=3)
                 pi_events['session_minutes'] = [x / 60 for x in pi_events['session_time']]
+                with open(pi_dir, 'r') as file:  # Read meta data from first two lines into a dictionary
+                    line1 = file.readline()[:-1]
+                    line2 = file.readline()[:-1]
+                    pieces = line2.split(',')
+                    if '{' in line2:
+                        curly_start = np.where(np.array([p[0] for p in pieces]) == '{')[0]
+                        curly_end = np.where(np.array([p[-1] for p in pieces]) == '}')[0]
+                        pieces_list = []
+                        sub_piece = []
+                        for i in range(len(pieces)):
+                            if curly_start[0] <= i <= curly_end[0] or curly_start[1] <= i <= curly_end[1]:
+                                sub_piece.append(pieces[i])
+                            else:
+                                pieces_list.append(pieces[i])
+                            if i in curly_end:
+                                string = ','.join(sub_piece)
+                                try:
+                                    s, e = string.index('<'), string.index('>')
+                                    string = string[:s] + "'exp_decreasing'" + string[e+1:]
+                                except Exception as e:
+                                    pass
+                                pieces_list.append(eval(string))
+                                sub_piece = []
+                    else:
+                        pieces_list = line2.split(',')
+                info = dict(zip(line1.split(','), pieces_list))
 
-                catgt_path = os.path.join(file_paths['external_path'], session, session + '_imec0',
-                                           session + '_tcat.imec0.ap.xd_384_6_0.txt')
+                catgt_path = os.path.join(file_paths['external_path'], session, 'catgt_' + session,
+                                          session + '_imec0', session + '_tcat.imec0.ap.xd_384_6_0.txt')
                 with open(catgt_path) as f:
                     np_times = [float(s.rstrip()) for s in f.readlines()]
                 camera = pi_events.key == 'camera'
@@ -64,7 +98,6 @@ def pi_process(file_paths, session_list):
                 pi_events['time'] = adjusted_pi_times
                 pi_events['sync_error'] = np.nanmin(outer, axis=1)
 
-
                 cluster_info = cluster_info[cluster_info.group == 'good']
                 spikes = spikes[spikes.cluster.isin(cluster_info.id)]
                 spikes = remove_dup_spikes(spikes, cluster_info)
@@ -76,6 +109,8 @@ def pi_process(file_paths, session_list):
                 cluster_info.to_pickle(os.path.join(data_dir, 'cluster_info.pkl'))
                 pi_events.to_pickle(os.path.join(data_dir, 'pi_events.pkl'))
                 np.save(os.path.join(data_dir, 'templates'), templates)
+                with open(os.path.join(data_dir, 'info.json'), "w") as info_file:
+                    json.dump(info, info_file)
                 print(f'{session} has {len(cluster_info)} units')
         except Exception as e:
             print(f'{session} threw error: {e}')
@@ -132,6 +167,7 @@ def aligned_pi_events(data):
 
 def get_all_filenames(mouse):
     path = "C:\\Users\\Elissa\\GoogleDrive\\Code\\Python\\behavior_code\\data"
+    path = root_file_paths('pi_path')
 
     [[_, _, filenames]] = os.walk(path + '/' + mouse)
     for f in filenames:
@@ -147,6 +183,7 @@ def get_all_filenames(mouse):
 
 def preprocess_data(filename, mouse, return_info=False, verbose=False, date_range=None):
     path = "C:\\Users\\Elissa\\GoogleDrive\\Code\\Python\\behavior_code\\data"
+    path = root_file_paths('pi_path')
     if date_range:
         if not (date_range[0] < filename[6:] & filename[6:] < date_range[1]):
             return None
@@ -164,8 +201,5 @@ def preprocess_data(filename, mouse, return_info=False, verbose=False, date_rang
     return data
 
 
-
 if __name__ == '__main__':
-    file_paths = root_file_paths()
-    session_list, file_list = generate_file_lists(file_paths=file_paths)
-    pi_process(file_paths, session_list)
+    pi_process(regen=False)

@@ -39,20 +39,21 @@ def catgt(input_path, output_path):
     result = os.system(f"cd {os.path.join(tools_path, 'CatGT-win')} & {command}")
     if result == 0:
         print(f'{run_name} done')
-        dest_ni = os.path.join(output_path, 'catgt_' + run_name)
-        if not os.path.exists(dest_ni):
-            os.mkdir(dest_ni)
-        dest_imec = os.path.join(dest_ni, run_name + '_imec0')
-        if not os.path.exists(dest_imec):
-            os.mkdir(dest_imec)
-        shutil.move(os.path.join(input_path, run_name + '_ct_offsets.txt'), dest_ni)
-        shutil.move(os.path.join(input_path, run_name + '_fyi.txt'), dest_ni)
-        shutil.move(os.path.join(input_path, run_name + '_imec0', run_name + '_tcat.imec0.ap.bin'), dest_imec)
-        shutil.move(os.path.join(input_path, run_name + '_imec0', run_name + '_tcat.imec0.ap.meta'), dest_imec)
-        shutil.move(os.path.join(input_path, run_name + '_imec0', run_name + '_tcat.imec0.ap.xd_384_6_0.txt'),
-                    dest_imec)
-        shutil.move(os.path.join(input_path, run_name + '_imec0', run_name + '_tcat.imec0.ap.xd_384_6_500.txt'),
-                    dest_imec)
+        if input_path != output_path:
+            dest_ni = os.path.join(output_path, 'catgt_' + run_name)
+            if not os.path.exists(dest_ni):
+                os.mkdir(dest_ni)
+            dest_imec = os.path.join(dest_ni, run_name + '_imec0')
+            if not os.path.exists(dest_imec):
+                os.mkdir(dest_imec)
+            shutil.move(os.path.join(input_path, run_name + '_ct_offsets.txt'), dest_ni)
+            shutil.move(os.path.join(input_path, run_name + '_fyi.txt'), dest_ni)
+            shutil.move(os.path.join(input_path, run_name + '_imec0', run_name + '_tcat.imec0.ap.bin'), dest_imec)
+            shutil.move(os.path.join(input_path, run_name + '_imec0', run_name + '_tcat.imec0.ap.meta'), dest_imec)
+            shutil.move(os.path.join(input_path, run_name + '_imec0', run_name + '_tcat.imec0.ap.xd_384_6_0.txt'),
+                        dest_imec)
+            shutil.move(os.path.join(input_path, run_name + '_imec0', run_name + '_tcat.imec0.ap.xd_384_6_500.txt'),
+                        dest_imec)
     else:
         print(f'{run_name} catgt failed with exit code {result}. Check catgt.log in {tools_path}')
 

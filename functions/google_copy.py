@@ -8,25 +8,40 @@ import glob
 # from functions import Timer
 import time
 import json
-
+import tkinter as tk
+import tkinter.font as font
+from threading import Thread
+from time import sleep
 """A lot of the paths and functions in this file are specific to the evolving file structure of my (Elissa's) data
 in the cloud. You can use this as a basis, but much of it will need to be changed."""
 
+stop = False
+stopped = False
+
 
 def google_copy():
-    json_path = os.path.join(os.getcwd(), 'cloud_archive.json')
+    global stop
+    global stopped
+    t1 = Thread(target=StopButton)
+    t1.start()
+    project_dir = os.getcwd() if not os.path.basename(os.getcwd()) == 'functions' else os.path.dirname(os.getcwd())
+    json_path = os.path.join(project_dir, 'cloud_archive.json')
     file_paths = root_file_paths()
     key_file = os.path.join('C:\\', 'cloud', 'subtle-fulcrum-342318-b959d7141166.json')
-    storage_client = storage.Client.from_service_account_json(key_file, project='subtle-fulcrum')
-    archive_bucket = storage_client.get_bucket('elissa_neuropixel_data')
     rel_paths = glob.glob(file_paths['external_path'] + '/**', recursive=True)
-    cloud_archive = get_cloud_files(json_path=json_path, refresh=False)
+    cloud_archive = get_cloud_files(refresh=False)
     for local_file in rel_paths:
         if os.path.isfile(local_file):
+            if not ((local_file[-16:] == '_t0.imec0.ap.bin') or (local_file[-17:] == '_t0.imec0.ap.meta') or
+                    (local_file[-12:] == '_t0.nidq.bin') or (local_file[-13:] == '_t0.nidq.meta')):
+                continue
             local_path_parts = local_file.split(os.sep)
             remote_path = f'{"/".join(local_path_parts[len(file_paths["external_path"].split(os.sep)):])}'
             if remote_path in cloud_archive['archived']:
                 continue
+            print('Connecting to google cloud')
+            storage_client = storage.Client.from_service_account_json(key_file, project='subtle-fulcrum')
+            archive_bucket = storage_client.get_bucket('elissa_neuropixel_data')
             full_remote_path = 'recordings/' + remote_path
             origin_path = os.path.join(file_paths['origin_path'],
                                        *local_path_parts[len(file_paths["external_path"].split(os.sep)):])
@@ -47,14 +62,21 @@ def google_copy():
                     print('failed')
                     print(f'attempt took {time.time() - tic} seconds')
                     print(e)
-            else:
-                print(f'uploading {full_remote_path}...' + ''.join(max(130 - len(full_remote_path), 1) * [' ']), end='')
-                print('already uploaded')
+            # else:
+            #     print(f'uploading {full_remote_path}...' + ''.join(max(130 - len(full_remote_path), 1) * [' ']), end='')
+            #     print('already uploaded')
+        if stop:
+            print('Stopped uploading to google cloud')
+            stopped = True
+            break
+    if not stopped:
+        print('Finished uploading to google cloud')
+    stopped = True
 
-    print('Finished uploading to google cloud')
 
-
-def get_cloud_files(json_path=os.path.join(os.getcwd(), 'cloud_archive.json'), refresh=False):
+def get_cloud_files(refresh=False):
+    project_dir = os.getcwd() if not os.path.basename(os.getcwd()) == 'functions' else os.path.dirname(os.getcwd())
+    json_path = os.path.join(project_dir, 'cloud_archive.json')
     if os.path.exists(json_path):
         cloud_archive = load_json(json_path)
         cloud_archive['archived'].sort()
@@ -90,6 +112,40 @@ def cloud_file_list(key_name, project, bucket):
     key_file = os.path.join('C:\\', 'cloud', f'{key_name}.json')
     storage_client = storage.Client.from_service_account_json(key_file, project=project)
     return [blob.name for blob in storage_client.list_blobs(bucket)]
+
+
+class StopButton:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.geometry("300x200")
+        self.root.title('Google Upload')
+        my_font = font.Font(size=16)
+        self.button = tk.Button(
+            master=self.root,
+            text='Stop After Current Upload',
+            font=my_font,
+            width=40,
+            height=12,
+            bg="white",
+            fg="black",
+            command=self.stop)
+        self.button.pack()
+        self._job = self.root.after(1000, self.check_continue)
+        self.root.mainloop()
+
+    def stop(self):
+        global stop
+        stop = True
+
+    def check_continue(self):
+        global stopped
+        if stopped:
+            if self._job is not None:
+                self.root.after_cancel(self._job)
+                self._job = None
+            self.root.destroy()
+        else:
+            self._job = self.root.after(1000, self.check_continue)
 
 
 if __name__ == '__main__':

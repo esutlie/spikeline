@@ -40,5 +40,55 @@ def check_locations():
                 print(f'{session} should not be deleted')
 
 
+def check_structure():
+    file_paths = root_file_paths()
+    session_list, file_list = generate_file_lists(file_paths=file_paths)
+    external_sessions = session_list['external_path']
+    for session in external_sessions:
+        external_path = os.path.join(file_paths['external_path'], session)
+        get_filepaths(os.path.join(external_path, 'phy_output'))
+        external_files = get_filepaths(external_path)
+        expected_files = [os.path.join(external_path, p) for p in expected_structure(session)]
+        missing_files = [f for f in expected_files if f not in external_files]
+        extra_files = [f for f in external_files if f not in expected_files]
+        extra_files = [f for f in extra_files if f.split(os.sep)[-1][:4] != 'data']
+        # if len(extra_files):
+        #     print(session)
+        #     print('   extra files:')
+        #     for f in extra_files:
+        #         print('        ' + f)
+        #         # os.remove(f)
+        if len(missing_files):
+            print(session)
+            print('   missing files:')
+            for f in missing_files:
+                print('        ' + f)
+
+def expected_structure(name):
+    phy_files = ['channel_groups.npy', 'channel_map.npy', 'channel_map_si.npy', 'channel_positions.npy',
+                 'cluster_channel_group.tsv', 'cluster_group.tsv', 'cluster_info.tsv', 'cluster_si_unit_id.tsv',
+                 'cluster_si_unit_ids.tsv', 'params.py', 'phy.log', 'similar_templates.npy', 'spike_clusters.npy',
+                 'spike_templates.npy', 'spike_times.npy', 'templates.npy', 'template_ind.npy', 'whitening_mat_inv.npy',
+                 'amplitudes.npy', 'pc_features.npy', 'pc_feature_ind.npy']
+    processed_files = ['cluster_info.pkl', 'pi_events.pkl', 'spikes.pkl', 'templates.npy']
+    structure = [
+        os.path.join('catgt_' + name, name + '_imec0', name + '_tcat.imec0.ap.bin'),
+        os.path.join('catgt_' + name, name + '_imec0', name + '_tcat.imec0.ap.meta'),
+        os.path.join('catgt_' + name, name + '_imec0', name + '_tcat.imec0.ap.xd_384_6_0.txt'),
+        os.path.join('catgt_' + name, name + '_imec0', name + '_tcat.imec0.ap.xd_384_6_500.txt'),
+        os.path.join('catgt_' + name, name + '_ct_offsets.txt'),
+        os.path.join('catgt_' + name, name + '_fyi.txt'),
+        os.path.join(name + '_imec0', name + '_t0.imec0.ap.bin'),
+        os.path.join(name + '_imec0', name + '_t0.imec0.ap.meta'),
+        os.path.join(name + '_t0.nidq.bin'),
+        os.path.join(name + '_t0.nidq.meta'),
+        *[os.path.join('phy_output', file_name) for file_name in phy_files],
+        *[os.path.join('phy_output_pre_align', file_name) for file_name in phy_files],
+        *[os.path.join('processed_data', file_name) for file_name in processed_files],
+    ]
+    return structure
+
+
 if __name__ == '__main__':
     check_locations()
+    # check_structure()

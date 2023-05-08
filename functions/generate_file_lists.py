@@ -7,7 +7,7 @@ def generate_file_lists(file_paths):
     phy_processed = [session for session in external_sessions if
                      os.path.exists(os.path.join(file_paths['external_path'], session, 'phy_output'))]
     pi_processed = [session for session in external_sessions if
-                     os.path.exists(os.path.join(file_paths['external_path'], session, 'processed_data'))]
+                     os.path.exists(os.path.join(file_paths['external_path'], session, 'processed_data', 'info.json'))]
 
     kilosort_fail_list = [
         'ES029_2022-09-28_checker0_199_0_g0',
@@ -15,6 +15,7 @@ def generate_file_lists(file_paths):
         'ES029_2022-09-26_checker0_199_0_g0',
         'ES029_2022-09-23_checker0_199_0_g0',
         'ES029_2022-09-22_checker0_199_1_g0',
+        'ES029_2022-09-16_bot192_1_g0'
     ]
     session_list = {
         'origin_path': get_directories(file_paths['origin_path']),

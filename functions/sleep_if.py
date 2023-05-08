@@ -3,7 +3,7 @@ import datetime
 import time
 
 
-def sleep_if(sleepy=True, morning=9, evening=18):
+def sleep_if(sleepy=True, morning=11, evening=18):
     if sleepy:
         time_string = str(evening) + 'am' if evening < 13 else str(evening - 12) + 'pm'
         today = datetime.datetime.now()

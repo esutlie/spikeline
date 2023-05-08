@@ -20,7 +20,6 @@ from spikeinterface.exporters import export_to_phy
 ks3_path = os.path.join('C:\\', 'github', 'Kilosort')
 ks2_5_path = os.path.join('C:\\', 'github', 'Kilosort2_5')
 
-
 os.environ['KILOSORT3_PATH'] = ks3_path
 os.environ['KILOSORT2_5_PATH'] = ks2_5_path
 
@@ -51,7 +50,7 @@ def spikeline(data_path, phy_folder, working_folder=os.path.join('C:\\', 'phy_te
         recording_path = os.path.join(data_path, supercat_path)
     else:
         recording_name = folder_name + '_imec0'
-        recording_path = os.path.join(data_path, recording_name)
+        recording_path = os.path.join(data_path, 'catgt_' + folder_name, recording_name)
     # recording_path = os.path.join(data_path, recording_name)
     print(f'specified recording save path: {recording_path}')
 
@@ -170,4 +169,5 @@ if __name__ == '__main__':
     session_list, file_list = generate_file_lists(file_paths=file_paths)
     file_path = os.path.join(file_paths['external_path'], 'catgt_merge_ES029_bot72_')
     super_cat = os.path.join('supercat_ES029_2022-08-31_bot72_0_g0', 'ES029_2022-08-31_bot72_0_g0_imec0')
-    spikeline(file_path, os.path.join('E:\\', 'phy_ready'), working_folder=os.path.join('E:\\', 'phy_temp'), supercat_path=super_cat)
+    spikeline(file_path, os.path.join('E:\\', 'phy_ready'), working_folder=os.path.join('E:\\', 'phy_temp'),
+              supercat_path=super_cat)
