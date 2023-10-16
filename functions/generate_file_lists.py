@@ -21,7 +21,7 @@ def generate_file_lists(file_paths):
         'origin_path': get_directories(file_paths['origin_path']),
         'external_path': get_directories(file_paths['external_path']),
         'phy_ready_path': get_directories(file_paths['phy_ready_path']),
-        'phy_holding_path': get_directories(file_paths['phy_holding_path']),
+        'pi_path': get_directories(file_paths['pi_path']),
         'phy_processed_list': phy_processed,
         'pi_processed_list': pi_processed,
         'kilosort_fail_list': kilosort_fail_list
@@ -29,8 +29,8 @@ def generate_file_lists(file_paths):
     file_list = {
         'origin_path': get_filepaths(file_paths['origin_path']),
         'external_path': get_filepaths(file_paths['external_path']),
+        'pi_path': get_filepaths(file_paths['pi_path']),
         'phy_ready_path': get_filepaths(file_paths['phy_ready_path']),
-        'phy_holding_path': get_filepaths(file_paths['phy_holding_path'])
     }
     return session_list, file_list
 

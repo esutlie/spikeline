@@ -1,5 +1,8 @@
 # pi_process.py
 from functions.read_meta import read_meta
+from functions.read_pi_meta import read_pi_meta
+from functions.remove_dup_spikes import remove_dup_spikes
+from functions.add_shank_info import add_shank_info
 from functions.generate_file_lists import get_filepaths, generate_file_lists
 import os
 from datetime import datetime
@@ -19,7 +22,7 @@ def pi_process(regen=False):
     for session in session_list['external_path']:
         try:
             if (session not in session_list['pi_processed_list'] or regen) \
-                    and session in session_list['phy_processed_list']:
+                    and session in session_list['phy_processed_list'] or True:
                 meta_data = read_meta(Path(
                     os.path.join(file_paths['external_path'], session, session + '_imec0',
                                  session + '_t0.imec0.ap.bin')))
@@ -45,6 +48,13 @@ def pi_process(regen=False):
                 spike_times = np.load(os.path.join(phy_dir, 'spike_times.npy'))
                 templates = np.load(os.path.join(phy_dir, 'templates.npy'))
                 cluster_info = pd.read_csv(os.path.join(phy_dir, 'cluster_info.tsv'), sep='\t')
+                cluster_info = add_shank_info(cluster_info, phy_dir)
+
+                # channel_positions = np.load(os.path.join(phy_dir, 'channel_positions.npy'))
+                # channel_shanks = np.round(channel_positions[:, 0] / 250)
+                # channel_row = np.round(channel_positions[:, 1] / 15)
+                # cluster_info['shank'] = channel_shanks[cluster_info.ch.values]
+                # cluster_info['row'] = channel_row[cluster_info.ch.values]
 
                 spikes = pd.DataFrame(
                     np.concatenate([spike_times, np.expand_dims(spike_clusters, axis=1), spike_templates],
@@ -53,32 +63,7 @@ def pi_process(regen=False):
 
                 pi_events = pd.read_csv(pi_dir, na_values=['None'], skiprows=3)
                 pi_events['session_minutes'] = [x / 60 for x in pi_events['session_time']]
-                with open(pi_dir, 'r') as file:  # Read meta data from first two lines into a dictionary
-                    line1 = file.readline()[:-1]
-                    line2 = file.readline()[:-1]
-                    pieces = line2.split(',')
-                    if '{' in line2:
-                        curly_start = np.where(np.array([p[0] for p in pieces]) == '{')[0]
-                        curly_end = np.where(np.array([p[-1] for p in pieces]) == '}')[0]
-                        pieces_list = []
-                        sub_piece = []
-                        for i in range(len(pieces)):
-                            if curly_start[0] <= i <= curly_end[0] or curly_start[1] <= i <= curly_end[1]:
-                                sub_piece.append(pieces[i])
-                            else:
-                                pieces_list.append(pieces[i])
-                            if i in curly_end:
-                                string = ','.join(sub_piece)
-                                try:
-                                    s, e = string.index('<'), string.index('>')
-                                    string = string[:s] + "'exp_decreasing'" + string[e+1:]
-                                except Exception as e:
-                                    pass
-                                pieces_list.append(eval(string))
-                                sub_piece = []
-                    else:
-                        pieces_list = line2.split(',')
-                info = dict(zip(line1.split(','), pieces_list))
+                info = read_pi_meta(pi_dir)
 
                 catgt_path = os.path.join(file_paths['external_path'], session, 'catgt_' + session,
                                           session + '_imec0', session + '_tcat.imec0.ap.xd_384_6_0.txt')
@@ -114,20 +99,6 @@ def pi_process(regen=False):
                 print(f'{session} has {len(cluster_info)} units')
         except Exception as e:
             print(f'{session} threw error: {e}')
-
-
-def remove_dup_spikes(spikes, cluster_info):
-    to_remove = []
-    for unit in cluster_info.id:
-        dif = spikes[spikes.cluster == unit].time - np.roll(
-            spikes[spikes.cluster == unit].time, 1)
-        dif = dif[1:]
-        ind = np.where((0 < dif) & (dif < 0.0004))[0]
-        if len(ind):
-            to_remove.append([dif.index[i] for i in ind])
-    to_remove = [item for sublist in to_remove for item in sublist]
-    spikes.drop(to_remove)
-    return spikes
 
 
 def aligned_pi_events(data):

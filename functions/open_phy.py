@@ -1,7 +1,7 @@
 # open_phy.py
 import os
 from functions.generate_file_lists import get_directories
-
+from functions.unit_counts import get_unit_count
 
 def open_phy(save_folder):
     anaconda_prompt_cmd = ' '.join([os.path.join('C:\\', 'Users', 'Elissa', 'Anaconda3', 'Scripts', 'activate.bat'),
@@ -19,5 +19,6 @@ if __name__ == '__main__':
     for d in dirs:
         try:
             open_phy(os.path.join(path, d))
+            print(f'{d}: {get_unit_count(os.path.join(path, d))}')
         finally:
-            print('waited for open_phy to finish')
+            print()

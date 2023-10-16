@@ -9,6 +9,7 @@ from .open_phy import open_phy
 from .pi_process import pi_process
 from .prep_phy import prep_phy
 from .read_meta import read_meta
+from .read_pi_meta import read_pi_meta
 from .reset_folder import reset_folder
 from .sleep_if import sleep_if
 from .spikeline import spikeline

@@ -1001,6 +1001,10 @@
         "ES024_2023-04-18_bot192_0_g0/ES024_2023-04-18_bot192_0_g0_imec0/ES024_2023-04-18_bot192_0_g0_t0.imec0.ap.meta",
         "ES024_2023-04-18_bot192_0_g0/ES024_2023-04-18_bot192_0_g0_t0.nidq.bin",
         "ES024_2023-04-18_bot192_0_g0/ES024_2023-04-18_bot192_0_g0_t0.nidq.meta",
+        "ES024_2023-05-17_bot288_0_g0/ES024_2023-05-17_bot288_0_g0_imec0/ES024_2023-05-17_bot288_0_g0_t0.imec0.ap.bin",
+        "ES024_2023-05-17_bot288_0_g0/ES024_2023-05-17_bot288_0_g0_imec0/ES024_2023-05-17_bot288_0_g0_t0.imec0.ap.meta",
+        "ES024_2023-05-17_bot288_0_g0/ES024_2023-05-17_bot288_0_g0_t0.nidq.bin",
+        "ES024_2023-05-17_bot288_0_g0/ES024_2023-05-17_bot288_0_g0_t0.nidq.meta",
         "ES025_2023-02-13_bot170_0_g0/ES025_2023-02-13_bot170_0_g0_imec0/ES025_2023-02-13_bot170_0_g0_t0.imec0.ap.bin",
         "ES025_2023-02-13_bot170_0_g0/ES025_2023-02-13_bot170_0_g0_imec0/ES025_2023-02-13_bot170_0_g0_t0.imec0.ap.bin",
         "ES025_2023-02-13_bot170_0_g0/ES025_2023-02-13_bot170_0_g0_imec0/ES025_2023-02-13_bot170_0_g0_t0.imec0.ap.meta",
@@ -1573,6 +1577,10 @@
         "ES025_2023-04-18_bot170_0_g0/ES025_2023-04-18_bot170_0_g0_imec0/ES025_2023-04-18_bot170_0_g0_t0.imec0.ap.meta",
         "ES025_2023-04-18_bot170_0_g0/ES025_2023-04-18_bot170_0_g0_t0.nidq.bin",
         "ES025_2023-04-18_bot170_0_g0/ES025_2023-04-18_bot170_0_g0_t0.nidq.meta",
+        "ES025_2023-05-17_bot240_0_g0/ES025_2023-05-17_bot240_0_g0_imec0/ES025_2023-05-17_bot240_0_g0_t0.imec0.ap.bin",
+        "ES025_2023-05-17_bot240_0_g0/ES025_2023-05-17_bot240_0_g0_imec0/ES025_2023-05-17_bot240_0_g0_t0.imec0.ap.meta",
+        "ES025_2023-05-17_bot240_0_g0/ES025_2023-05-17_bot240_0_g0_t0.nidq.bin",
+        "ES025_2023-05-17_bot240_0_g0/ES025_2023-05-17_bot240_0_g0_t0.nidq.meta",
         "ES026_2022-01-24_bot170_0_g0/ES026_2022-01-24_bot170_0_g0_ct_offsets.txt",
         "ES026_2022-01-24_bot170_0_g0/ES026_2022-01-24_bot170_0_g0_ct_offsets.txt",
         "ES026_2022-01-24_bot170_0_g0/ES026_2022-01-24_bot170_0_g0_fyi.txt",
@@ -5271,6 +5279,14 @@
         "ES032_2022-12-13_bot170_1_g0/processed_data/cluster_info.pkl",
         "ES032_2022-12-13_bot170_1_g0/processed_data/pi_events.pkl",
         "ES032_2022-12-13_bot170_1_g0/processed_data/spikes.pkl",
-        "ES032_2022-12-13_bot170_1_g0/processed_data/templates.npy"
+        "ES032_2022-12-13_bot170_1_g0/processed_data/templates.npy",
+        "ES024_2023-05-23_bot288_0_g0/ES024_2023-05-23_bot288_0_g0_imec0/ES024_2023-05-23_bot288_0_g0_t0.imec0.ap.bin",
+        "ES024_2023-05-23_bot288_0_g0/ES024_2023-05-23_bot288_0_g0_imec0/ES024_2023-05-23_bot288_0_g0_t0.imec0.ap.meta",
+        "ES024_2023-05-23_bot288_0_g0/ES024_2023-05-23_bot288_0_g0_t0.nidq.bin",
+        "ES024_2023-05-23_bot288_0_g0/ES024_2023-05-23_bot288_0_g0_t0.nidq.meta",
+        "ES025_2023-05-23_bot240_0_g0/ES025_2023-05-23_bot240_0_g0_imec0/ES025_2023-05-23_bot240_0_g0_t0.imec0.ap.bin",
+        "ES025_2023-05-23_bot240_0_g0/ES025_2023-05-23_bot240_0_g0_imec0/ES025_2023-05-23_bot240_0_g0_t0.imec0.ap.meta",
+        "ES025_2023-05-23_bot240_0_g0/ES025_2023-05-23_bot240_0_g0_t0.nidq.bin",
+        "ES025_2023-05-23_bot240_0_g0/ES025_2023-05-23_bot240_0_g0_t0.nidq.meta"
     ]
 }
