@@ -22,7 +22,7 @@ def pi_process(regen=False):
     for session in session_list['external_path']:
         try:
             if (session not in session_list['pi_processed_list'] or regen) \
-                    and session in session_list['phy_processed_list'] or True:
+                    and session in session_list['phy_processed_list']:
                 meta_data = read_meta(Path(
                     os.path.join(file_paths['external_path'], session, session + '_imec0',
                                  session + '_t0.imec0.ap.bin')))
@@ -47,8 +47,13 @@ def pi_process(regen=False):
                 spike_templates = np.load(os.path.join(phy_dir, 'spike_templates.npy'))
                 spike_times = np.load(os.path.join(phy_dir, 'spike_times.npy'))
                 templates = np.load(os.path.join(phy_dir, 'templates.npy'))
+                template_ind = np.load(os.path.join(phy_dir, 'template_ind.npy'))
                 cluster_info = pd.read_csv(os.path.join(phy_dir, 'cluster_info.tsv'), sep='\t')
                 cluster_info = add_shank_info(cluster_info, phy_dir)
+
+                template_id = pd.read_csv(os.path.join(phy_dir, 'cluster_si_unit_ids.tsv'), sep='\t')
+                template_id = template_id.set_index('si_unit_id')
+                cluster_info['template_id'] = template_id.loc[cluster_info.si_unit_id.values].cluster_id.values
 
                 # channel_positions = np.load(os.path.join(phy_dir, 'channel_positions.npy'))
                 # channel_shanks = np.round(channel_positions[:, 0] / 250)
@@ -94,6 +99,7 @@ def pi_process(regen=False):
                 cluster_info.to_pickle(os.path.join(data_dir, 'cluster_info.pkl'))
                 pi_events.to_pickle(os.path.join(data_dir, 'pi_events.pkl'))
                 np.save(os.path.join(data_dir, 'templates'), templates)
+                np.save(os.path.join(data_dir, 'template_ind'), template_ind)
                 with open(os.path.join(data_dir, 'info.json'), "w") as info_file:
                     json.dump(info, info_file)
                 print(f'{session} has {len(cluster_info)} units')
@@ -173,4 +179,4 @@ def preprocess_data(filename, mouse, return_info=False, verbose=False, date_rang
 
 
 if __name__ == '__main__':
-    pi_process(regen=False)
+    pi_process(regen=True)

@@ -18,7 +18,7 @@ def prep_phy():
     hdd = psutil.disk_usage('/')
     print(f'remaining disk: {hdd.free / (2 ** 30)} GiB')
     for i in range(len(not_processed)):
-        if hdd.free / (2 ** 30) > 110:
+        if hdd.free / (2 ** 30) > 150:
             if check_session_files(file_paths['external_path'], not_processed[i]):
                 try:
                     print(f'started {not_processed[i]} at {time.strftime("%H:%M:%S", time.localtime())}')

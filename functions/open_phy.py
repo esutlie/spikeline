@@ -3,6 +3,7 @@ import os
 from functions.generate_file_lists import get_directories
 from functions.unit_counts import get_unit_count
 
+
 def open_phy(save_folder):
     anaconda_prompt_cmd = ' '.join([os.path.join('C:\\', 'Users', 'Elissa', 'Anaconda3', 'Scripts', 'activate.bat'),
                                     os.path.join('C:\\', 'Users', 'Elissa', 'Anaconda3')])
