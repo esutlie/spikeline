@@ -45,7 +45,7 @@ def check_halt():
 
 
 def run_pipeline():
-    sleepy = True
+    sleepy = False
     if not sleepy:
         t1 = Thread(target=PipelineStop)
         t1.start()
