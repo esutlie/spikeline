@@ -15,9 +15,10 @@ def prep_phy():
     not_processed = [session for session in session_list['external_path'] if
                      session not in session_list['phy_ready_path'] + session_list['phy_processed_list']
                      + session_list['kilosort_fail_list']]
-    hdd = psutil.disk_usage('/')
+    hdd = psutil.disk_usage(file_paths['phy_ready_path'])
     print(f'remaining disk: {hdd.free / (2 ** 30)} GiB')
     for i in range(len(not_processed)):
+        hdd = psutil.disk_usage(file_paths['phy_ready_path'])
         if hdd.free / (2 ** 30) > 200:
             if check_session_files(file_paths['external_path'], not_processed[i]):
                 try:
@@ -27,8 +28,9 @@ def prep_phy():
                     print(f'finished {not_processed[i]} at {time.strftime("%H:%M:%S", time.localtime())}')
                 except Exception as e:
                     print(f'spikeline threw the following error while processing {not_processed[i]}')
-                    # print(e)
-                    raise e
+                    print(e)
+                    continue
+                    # raise e
                 break
             else:
                 print(f'{not_processed[i]} is missing file[s]')

@@ -15,6 +15,7 @@ import spikeinterface.sorters as ss
 import spikeinterface.extractors as se
 import spikeinterface.comparison as sc
 from spikeinterface.exporters import export_to_phy
+from spikeinterface.curation import remove_excess_spikes
 
 # Change these paths to your own
 ks3_path = os.path.join('C:\\', 'github', 'Kilosort')
@@ -23,6 +24,7 @@ ks2_5_path = os.path.join('C:\\', 'github', 'Kilosort2_5')
 os.environ['KILOSORT3_PATH'] = ks3_path
 os.environ['KILOSORT2_5_PATH'] = ks2_5_path
 
+probe_code = 'imec1'
 
 def remove_empty_or_one(sorter):
     units_to_keep = []
@@ -35,13 +37,14 @@ def remove_empty_or_one(sorter):
     return sorter.select_units(units_to_keep)
 
 
-def spikeline(data_path, phy_folder, working_folder=os.path.join('C:\\', 'phy_temp'), supercat_path=None):
-    n_jobs = -1
+def spikeline(data_path, phy_folder, working_folder=os.path.join('Y:\\', 'phy_temp'), supercat_path=None):
+    n_jobs = 12
 
     if not os.path.isdir(working_folder):
         os.mkdir(working_folder)
 
-    hdd = psutil.disk_usage('/')
+    file_paths = root_file_paths()
+    hdd = psutil.disk_usage(file_paths['phy_ready_path'])
     print(f'remaining disk: {hdd.free / (2 ** 30)} GiB')
 
     folder_name = data_path.split(os.sep)[-1]
@@ -49,14 +52,14 @@ def spikeline(data_path, phy_folder, working_folder=os.path.join('C:\\', 'phy_te
     if supercat_path:
         recording_path = os.path.join(data_path, supercat_path)
     else:
-        recording_name = folder_name + '_imec0'
+        recording_name = folder_name + '_' + probe_code
         recording_path = os.path.join(data_path, 'catgt_' + folder_name, recording_name)
     # recording_path = os.path.join(data_path, recording_name)
     print(f'specified recording save path: {recording_path}')
 
     # recording = si.load_extractor(os.path.join(working_folder, 'recording_save0'))
 
-    recording = se.read_spikeglx(recording_path, stream_id='imec0.ap')
+    recording = se.read_spikeglx(recording_path, stream_id=probe_code+'.ap')
     print(f'read spikeGLX')
 
     recording_cmr = recording
@@ -85,7 +88,7 @@ def spikeline(data_path, phy_folder, working_folder=os.path.join('C:\\', 'phy_te
             else:
                 print(e)
 
-    hdd = psutil.disk_usage('/')
+    hdd = psutil.disk_usage(file_paths['phy_ready_path'])
     print(f'remaining disk: {hdd.free / (2 ** 30)} GiB')
 
     sorter_params = {"keep_good_only": True}
@@ -99,7 +102,7 @@ def spikeline(data_path, phy_folder, working_folder=os.path.join('C:\\', 'phy_te
     # kilosort3_folder = os.path.join(working_folder, 'kilosort30')
     # ks3_sorter = si.read_sorter_folder(kilosort3_folder)
     print(f'finished kilosort3...')
-    hdd = psutil.disk_usage('/')
+    hdd = psutil.disk_usage(file_paths['phy_ready_path'])
     print(f'remaining disk: {hdd.free / (2 ** 30)} GiB')
     sorter_params = {"keep_good_only": False}
     ss.Kilosort2_5Sorter.set_kilosort2_5_path(ks2_5_path)
@@ -113,7 +116,7 @@ def spikeline(data_path, phy_folder, working_folder=os.path.join('C:\\', 'phy_te
     # ks2_5_sorter = si.read_sorter_folder(kilosort2_5_folder)
     print(f'finished kilosort2_5...')
 
-    hdd = psutil.disk_usage('/')
+    hdd = psutil.disk_usage(file_paths['phy_ready_path'])
     print(f'remaining disk: {hdd.free / (2 ** 30)} GiB')
 
     print(f'starting consensus...')
@@ -123,8 +126,8 @@ def spikeline(data_path, phy_folder, working_folder=os.path.join('C:\\', 'phy_te
                                             match_score=.3,
                                             spiketrain_mode='union')
     agreement = consensus.get_agreement_sorting(minimum_agreement_count=2)
-    kilosort3_templates = np.load(os.path.join(kilosort3_folder, 'templates.npy'))
-    kilosort2_5_templates = np.load(os.path.join(kilosort2_5_folder, 'templates.npy'))
+    kilosort3_templates = np.load(os.path.join(kilosort3_folder, 'sorter_output', 'templates.npy'))
+    kilosort2_5_templates = np.load(os.path.join(kilosort2_5_folder, 'sorter_output', 'templates.npy'))
 
     template_similarty = np.array([np.sum(
         (normalize(np.max(abs(kilosort3_templates[int(unit['kilosort3']), :, :]), axis=0, keepdims=True)) -
@@ -133,6 +136,7 @@ def spikeline(data_path, phy_folder, working_folder=os.path.join('C:\\', 'phy_te
     print(
         f'template filtering would remove {len(np.where(template_similarty >= .9)[0])} from {len(agreement.unit_ids)}')
     agreement = agreement.select_units(agreement.unit_ids[np.where(template_similarty < .9)[0]])
+    agreement = remove_excess_spikes(agreement, recording)
     consensus_folder = reset_folder(os.path.join(working_folder, 'consensus'), local=False)
     agreement = agreement.save(folder=consensus_folder)
 
@@ -140,7 +144,7 @@ def spikeline(data_path, phy_folder, working_folder=os.path.join('C:\\', 'phy_te
     waveforms = si.WaveformExtractor.create(recording, agreement, waveforms_folder)
     waveforms.set_params(ms_before=3., ms_after=4., max_spikes_per_unit=500)
     waveforms.run_extract_waveforms(n_jobs=n_jobs, chunk_size=30000)
-    hdd = psutil.disk_usage('/')
+    hdd = psutil.disk_usage(file_paths['phy_ready_path'])
     print(f'remaining disk: {hdd.free / (2 ** 30)} GiB')
 
     sparsity_dict = dict(method="radius", radius_um=50, peak_sign='both')
@@ -148,19 +152,22 @@ def spikeline(data_path, phy_folder, working_folder=os.path.join('C:\\', 'phy_te
     print(f'starting phy export')
     job_kwargs = {'n_jobs': n_jobs, 'total_memory': '8G'}
     export_to_phy(waveforms, phy_folder, compute_pc_features=False, compute_amplitudes=False, copy_binary=True,
-                  remove_if_exists=True, sparsity_dict=sparsity_dict, max_channels_per_template=None,
-                  **job_kwargs)
+                  remove_if_exists=True, **job_kwargs)
+    # export_to_phy(waveforms, phy_folder, compute_pc_features=False, compute_amplitudes=False, copy_binary=True,
+    #               remove_if_exists=True, sparsity_dict=sparsity_dict, max_channels_per_template=None,
+    #               **job_kwargs)
+
 
     print(f'finished phy export')
 
-    hdd = psutil.disk_usage('/')
+    hdd = psutil.disk_usage(file_paths['phy_ready_path'])
     print(f'remaining disk: {hdd.free / (2 ** 30)} GiB')
 
     print(f'removing intermediate data folders')
 
     rmtree(working_folder, ignore_errors=True)
 
-    hdd = psutil.disk_usage('/')
+    hdd = psutil.disk_usage(file_paths['phy_ready_path'])
     print(f'remaining disk: {hdd.free / (2 ** 30)} GiB')
 
 

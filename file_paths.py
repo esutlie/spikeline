@@ -10,7 +10,7 @@ def root_file_paths(request=None):
     external_path = os.path.join('E:\\', 'neuropixel_data')
 
     # A folder for sessions ready to be manually curated. Will take up a lot of space if multiple sessions are queued.
-    phy_ready_path = os.path.join('C:\\', 'phy_ready')
+    phy_ready_path = os.path.join('Y:\\', 'phy_ready')
 
     # Location of the associated raspberry pi files.
     pi_path = os.path.join('C:\\', 'Users', 'Elissa', 'GoogleDrive', 'Code', 'Python', 'behavior_code', 'data')

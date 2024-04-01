@@ -28,11 +28,11 @@ def check_files(file_location=os.path.join('E:\\', 'neuropixel_data'),
 
 
 def check_session_files(file_location, session):
-    path1 = os.path.join(file_location, session, session + '_t0.nidq.bin')
-    path2 = os.path.join(file_location, session, session + '_t0.nidq.meta')
-    path3 = os.path.join(file_location, session, session + '_imec0', session + '_t0.imec0.ap.bin')
-    path4 = os.path.join(file_location, session, session + '_imec0', session + '_t0.imec0.ap.meta')
-    for path in [path1, path2, path3, path4]:
+    # path1 = os.path.join(file_location, session, session + '_t0.nidq.bin')
+    # path2 = os.path.join(file_location, session, session + '_t0.nidq.meta')
+    path1 = os.path.join(file_location, session, session + '_imec0', session + '_t0.imec0.ap.bin')
+    path2 = os.path.join(file_location, session, session + '_imec0', session + '_t0.imec0.ap.meta')
+    for path in [path1, path2]:
         if not os.path.exists(path):
             return False
     return True
@@ -40,6 +40,10 @@ def check_session_files(file_location, session):
 
 def check_processing_files(file_location=os.path.join('E:\\', 'neuropixel_data'),
                            phy_ready_location=os.path.join('C:\\', 'phy_ready')):
+    known_error = ['ES029_2022-09-16_bot192_1_g0', 'ES029_2022-09-22_checker0_199_1_g0',
+                   'ES029_2022-09-23_checker0_199_0_g0', 'ES029_2022-09-26_checker0_199_0_g0',
+                   'ES029_2022-09-27_checker0_199_0_g0', 'ES029_2022-09-28_checker0_199_0_g0',
+                   'ES037_2023-12-20_bot336_1_g0']
     dirs = get_directories(file_location)
     phy_ready = []
     phy_complete = []
@@ -49,22 +53,22 @@ def check_processing_files(file_location=os.path.join('E:\\', 'neuropixel_data')
     catgt_done = []
     catgt_not_done = []
     for session in dirs:
-        if os.path.exists(os.path.join(file_location, session, session + '_imec0',
+        if os.path.exists(os.path.join(file_location, session, 'catgt_' + session, session + '_imec0',
                                        session + '_tcat.imec0.ap.xd_384_6_0.txt')):
             catgt_done += [session]
-        else:
+        elif session not in known_error:
             catgt_not_done += [session]
 
         if os.path.exists(os.path.join(file_location, session, 'processed_data')):
             data_ready += [session]
-        else:
+        elif session not in known_error:
             data_not_ready += [session]
         if os.path.exists(os.path.join(file_location, session, 'phy_output')):
             phy_complete += [session]
         if os.path.exists(os.path.join(phy_ready_location, session)):
             phy_ready += [session]
         if not os.path.exists(os.path.join(phy_ready_location, session)) and not os.path.exists(
-                os.path.join(file_location, session, 'phy_output')):
+                os.path.join(file_location, session, 'phy_output')) and session not in known_error:
             phy_none += [session]
 
     print(f'data ready sessions: {len(data_ready)}\n{data_ready}')
@@ -74,6 +78,7 @@ def check_processing_files(file_location=os.path.join('E:\\', 'neuropixel_data')
     print(f'no phy yet sessions: {len(phy_none)}\n{phy_none}')
     print(f'catgt done sessions: {len(catgt_done)}\n{catgt_done}')
     print(f'catgt not done sessions: {len(catgt_not_done)}\n{catgt_not_done}')
+    print(f'known error sessions: {len(known_error)}\n{known_error}')
 
 
 if __name__ == '__main__':

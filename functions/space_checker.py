@@ -105,5 +105,5 @@ def main(dir_path):
 
 
 if __name__ == "__main__":
-    main_path = os.path.join('C:\\')
+    main_path = os.path.join('C:\\github\\')
     main(main_path)

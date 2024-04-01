@@ -15,7 +15,7 @@ def copy_if_missing():
         if external_path not in file_list['external_path']:
             dest = os.path.dirname(external_path)
             if not os.path.isdir(dest):
-                os.mkdir(dest)
+                os.makedirs(dest)
             print(f'copying {file} to {file_paths["external_path"]}')
             shutil.copy(file, external_path)
 

@@ -47,13 +47,21 @@ def pi_process(regen=False):
                 spike_templates = np.load(os.path.join(phy_dir, 'spike_templates.npy'))
                 spike_times = np.load(os.path.join(phy_dir, 'spike_times.npy'))
                 templates = np.load(os.path.join(phy_dir, 'templates.npy'))
-                template_ind = np.load(os.path.join(phy_dir, 'template_ind.npy'))
+                full_template = templates.shape[2] == 384
+                if not full_template:
+                    template_ind = np.load(os.path.join(phy_dir, 'template_ind.npy'))
                 cluster_info = pd.read_csv(os.path.join(phy_dir, 'cluster_info.tsv'), sep='\t')
                 cluster_info = add_shank_info(cluster_info, phy_dir)
 
                 template_id = pd.read_csv(os.path.join(phy_dir, 'cluster_si_unit_ids.tsv'), sep='\t')
                 template_id = template_id.set_index('si_unit_id')
-                cluster_info['template_id'] = template_id.loc[cluster_info.si_unit_id.values].cluster_id.values
+                template_id_list = []
+                for val in cluster_info.si_unit_id.values:
+                    if np.isnan(val):
+                        template_id_list.append(np.nan)
+                    else:
+                        template_id_list.append(template_id.loc[val].cluster_id)
+                cluster_info['template_id'] = template_id_list
 
                 # channel_positions = np.load(os.path.join(phy_dir, 'channel_positions.npy'))
                 # channel_shanks = np.round(channel_positions[:, 0] / 250)
@@ -73,13 +81,39 @@ def pi_process(regen=False):
                 catgt_path = os.path.join(file_paths['external_path'], session, 'catgt_' + session,
                                           session + '_imec0', session + '_tcat.imec0.ap.xd_384_6_0.txt')
                 with open(catgt_path) as f:
-                    np_times = [float(s.rstrip()) for s in f.readlines()]
+                    np_times_list = [float(s.rstrip()) for s in f.readlines()]
                 camera = pi_events.key == 'camera'
                 start = pi_events.value == 1
-                pi_times = pi_events[camera & start].session_time.to_numpy()
-                pi_times = pi_times[-len(np_times):]
 
-                reg = LinearRegression().fit(pi_times.reshape(-1, 1), np_times)
+                pi_times = pi_events[camera & start].session_time.to_numpy()
+                np_times = np.array(np_times_list)
+                if len(pi_times) - len(np_times) < 10:
+                    print('matched sync signal session (pi and spikeGLX both recorded the same first square wave)')
+                np_dif = np_times - np.roll(np_times, 1)
+                pi_dif = pi_times - np.roll(pi_times, 1)
+                if 0.035 > np_dif[-1] or np_dif[-1] > 0.045:
+                    np_times = np_times[:-1]
+                    np_dif = np_times - np.roll(np_times, 1)
+
+                half_interval_ind = np.array(np.where(np_dif[1:] < 0.039))
+                half_interval_ind = half_interval_ind[
+                    np.where(half_interval_ind - np.roll(half_interval_ind, 1) == 1)]
+                if len(half_interval_ind):
+                    np_times = np.delete(np_times, half_interval_ind)
+
+                pi_times_cut = pi_times[-len(np_times):]
+
+                if not quality_check(np_times, pi_times_cut):
+                    print('filling gaps:', end=' ')
+                    np_times = fill_gaps(np_times)
+
+                    pi_times = fill_gaps(pi_times)
+                    pi_times_cut = pi_times[-len(np_times):]
+
+                    if not quality_check(np_times, pi_times_cut):
+                        print('sync signals are a bit mismatched')
+
+                reg = LinearRegression().fit(pi_times_cut.reshape(-1, 1), np_times)
                 adjusted_pi_times = reg.predict(pi_events.session_time.to_numpy().reshape(-1, 1))
                 outer = np.subtract.outer(adjusted_pi_times, np_times)
                 outer = np.abs(outer)
@@ -99,7 +133,8 @@ def pi_process(regen=False):
                 cluster_info.to_pickle(os.path.join(data_dir, 'cluster_info.pkl'))
                 pi_events.to_pickle(os.path.join(data_dir, 'pi_events.pkl'))
                 np.save(os.path.join(data_dir, 'templates'), templates)
-                np.save(os.path.join(data_dir, 'template_ind'), template_ind)
+                if not full_template:
+                    np.save(os.path.join(data_dir, 'template_ind'), template_ind)
                 with open(os.path.join(data_dir, 'info.json'), "w") as info_file:
                     json.dump(info, info_file)
                 print(f'{session} has {len(cluster_info)} units')
@@ -176,6 +211,37 @@ def preprocess_data(filename, mouse, return_info=False, verbose=False, date_rang
             info.append(next(reader))
         return info
     return data
+
+
+def quality_check(np_times, pi_times_cut):
+    np_dif = np.array(np_times) - np.roll(np.array(np_times), 1)
+    pi_dif = np.array(pi_times_cut) - np.roll(np.array(pi_times_cut), 1)
+    dif_dif = np_dif[1:] - pi_dif[1:]
+    max_dif = np.max(abs(dif_dif))
+    mean_dif = np.mean(abs(dif_dif))
+    print(f'mean dif = {mean_dif}, max dif = {max_dif}')
+    if max_dif > 0.01:
+        return False
+    else:
+        return True
+
+
+def fill_gaps(arr):
+    j = 0
+    time_dif = arr - np.roll(arr, 1)
+    while np.max(time_dif[1:]) > .065:
+        ind = np.argmax(time_dif)
+        max_arr_dif = np.max(time_dif[1:])
+        filler_arr = np.linspace(arr[ind - 1] + .04, arr[ind], num=round(max_arr_dif / .04 - 1),
+                                 endpoint=False)
+        print(filler_arr)
+        arr = np.insert(arr, ind, filler_arr)
+        time_dif = arr - np.roll(arr, 1)
+        j += 1
+        if j >= 5:
+            print('gap filling needed over 5 times, maybe something is wrong')
+            break
+    return arr
 
 
 if __name__ == '__main__':
