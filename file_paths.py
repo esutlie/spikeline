@@ -8,6 +8,7 @@ def root_file_paths(request=None):
 
     # A folder on an external hardrive or other accessbile storage location.
     external_path = os.path.join('E:\\', 'neuropixel_data')
+    # external_path = os.path.join('E:\\', 'rebekah')
 
     # A folder for sessions ready to be manually curated. Will take up a lot of space if multiple sessions are queued.
     phy_ready_path = os.path.join('Y:\\', 'phy_ready')

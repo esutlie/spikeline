@@ -5,7 +5,7 @@ import shutil
 import numpy as np
 from file_paths import root_file_paths
 
-probe_code = 'imec1'
+probe_code = 'imec0'
 
 
 def run_catgt():
@@ -30,7 +30,7 @@ def catgt(input_path, output_path):
 
     print(f'Running CatGT for {run_name}...')
     command = f'runit.bat -dir={directory} -run={run_name[0:-3]} -g={run_name[-1]},{run_name[-1]} ' \
-              f'-t=0,0 -prb=0 -ap -xd=2,0,-1,6,0 ' \
+              f'-t=0,0 -prb='+probe_code[-1]+' -ap -xd=2,0,-1,6,0 ' \
               f'-dest={output_path} -prb_fld -out_prb_fld -gblcar'
     # command = f'runit.bat -dir={directory} -run={run_name[0:-3]} -g={run_name[-1]},{run_name[-1]} -t=0,0 -prb=0 -ap -xd=2,0,-1,6,0' \
     #           f'-dest={output_path} -prb_fld -out_prb_fld -no_auto_sync -no_tshift'
