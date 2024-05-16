@@ -90,5 +90,5 @@ def expected_structure(name):
 
 
 if __name__ == '__main__':
-    # check_locations()
-    check_structure()
+    check_locations()
+    # check_structure()

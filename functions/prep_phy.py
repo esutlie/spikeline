@@ -12,6 +12,7 @@ import time
 def prep_phy():
     file_paths = root_file_paths()
     session_list, file_list = generate_file_lists(file_paths=file_paths)
+    # not_processed = session_list['external_path'][:1]
     not_processed = [session for session in session_list['external_path'] if
                      session not in session_list['phy_ready_path'] + session_list['phy_processed_list']
                      + session_list['kilosort_fail_list']]

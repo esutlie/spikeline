@@ -1,25 +1,26 @@
 # catgt.py
 import os
 from functions.generate_file_lists import generate_file_lists
+from functions.check_probe_codes import check_probe_codes
 import shutil
 import numpy as np
 from file_paths import root_file_paths
-
-probe_code = 'imec0'
 
 
 def run_catgt():
     file_paths = root_file_paths()
     session_list, file_list = generate_file_lists(file_paths=file_paths)
     for session in session_list['external_path']:
-        if not os.path.isfile(
-                os.path.join(file_paths['external_path'], session, 'catgt_' + session, session + '_' + probe_code,
-                             session + '_tcat.' + probe_code + '.ap.xd_384_6_0.txt')):
-            path = os.path.join(file_paths['external_path'], session)
-            catgt(path, path)
+        probe_codes = check_probe_codes(os.path.join(file_paths['external_path'], session))
+        for probe_code in probe_codes:
+            if not os.path.isfile(
+                    os.path.join(file_paths['external_path'], session, 'catgt_' + session, session + '_' + probe_code,
+                                 session + '_tcat.' + probe_code + '.ap.xd_384_6_0.txt')):
+                path = os.path.join(file_paths['external_path'], session)
+                catgt(path, path, probe_code=probe_code)
 
 
-def catgt(input_path, output_path):
+def catgt(input_path, output_path, probe_code='imec0'):
     tools_path = os.path.join('C:\\', 'spikeGLX', 'Tools2')
 
     path_parts = input_path.split(os.sep)

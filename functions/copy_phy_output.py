@@ -29,7 +29,10 @@ def copy_phy_output():
                 shutil.rmtree(os.path.join(path, '.phy'))
 
             # Move data to main folder on E: drive
-            dest_path = os.path.join(file_paths['external_path'], session, 'phy_output')
+            if session[-5:-1] == 'imec':
+                dest_path = os.path.join(file_paths['external_path'], session[:-6], 'phy_output', session[-5:])
+            else:
+                dest_path = os.path.join(file_paths['external_path'], session, 'phy_output')
             if not os.path.exists(dest_path):
                 shutil.copytree(path, dest_path)
 
