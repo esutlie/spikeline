@@ -7,8 +7,8 @@ def root_file_paths(request=None):
     origin_path = os.path.join('D:\\', 'recordings')
 
     # A folder on an external hardrive or other accessible storage location.
-    external_path = os.path.join('F:\\', 'Files', 'neuropixel_data2')
-    # external_path = os.path.join('F:\\', 'Files', 'rebekah')
+    # external_path = os.path.join('F:\\', 'Files', 'neuropixel_data2')
+    external_path = os.path.join('F:\\', 'Files', 'rebekah')
     # external_path = os.path.join('E:\\', 'neuropixel_data')
     # external_path = os.path.join('E:\\', 'rebekah')
 

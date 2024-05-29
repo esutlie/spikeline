@@ -51,11 +51,11 @@ def run_pipeline():
         t1.start()
 
     step_list = [
-        copy_if_missing,  # Copies files to external drive if they haven't already
-        google_copy,  # Copies files to google cloud if they haven't already
+        # copy_if_missing,  # Copies files to external drive if they haven't already
+        # google_copy,  # Copies files to google cloud if they haven't already
         run_catgt,  # Runs CatGT on any new sessions
-        pi_process,  # Processed the pi files and generally finishes the dataset after sorting
-        copy_phy_output,  # Copies data post manual curation to external drive and to a backup folder
+        # pi_process,  # Processed the pi files and generally finishes the dataset after sorting
+        # copy_phy_output,  # Copies data post manual curation to external drive and to a backup folder
         prep_phy,  # Gets raw data ready for manual curation
     ]
     while True:

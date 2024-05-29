@@ -54,9 +54,11 @@ def spikeline(data_path, phy_folder, working_folder=os.path.join('Y:\\', 'phy_te
     folder_name = data_path.split(os.sep)[-1]
     for probe_code in probe_codes:
         if len(probe_codes) > 1:
-            phy_folder = os.path.join(phy_folder, folder_name + '_' + probe_code)
+            phy_save_path = os.path.join(phy_folder, folder_name + '_' + probe_code)
+            if os.path.isdir(phy_save_path):
+                continue
         else:
-            phy_folder = os.path.join(phy_folder, folder_name)
+            phy_save_path = os.path.join(phy_folder, folder_name)
 
         if supercat_path:
             recording_path = os.path.join(data_path, supercat_path)
@@ -160,7 +162,7 @@ def spikeline(data_path, phy_folder, working_folder=os.path.join('Y:\\', 'phy_te
         print(f'got waveforms')
         print(f'starting phy export')
         job_kwargs = {'n_jobs': n_jobs, 'total_memory': '8G'}
-        export_to_phy(waveforms, phy_folder, compute_pc_features=False, compute_amplitudes=False, copy_binary=True,
+        export_to_phy(waveforms, phy_save_path, compute_pc_features=False, compute_amplitudes=False, copy_binary=True,
                       remove_if_exists=True, **job_kwargs)
         # export_to_phy(waveforms, phy_folder, compute_pc_features=False, compute_amplitudes=False, copy_binary=True,
         #               remove_if_exists=True, sparsity_dict=sparsity_dict, max_channels_per_template=None,

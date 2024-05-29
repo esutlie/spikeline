@@ -13,9 +13,13 @@ def run_catgt():
     for session in session_list['external_path']:
         probe_codes = check_probe_codes(os.path.join(file_paths['external_path'], session))
         for probe_code in probe_codes:
-            if not os.path.isfile(
-                    os.path.join(file_paths['external_path'], session, 'catgt_' + session, session + '_' + probe_code,
-                                 session + '_tcat.' + probe_code + '.ap.xd_384_6_0.txt')):
+            sync_file_flex = os.path.join(file_paths['external_path'], session, 'catgt_' + session,
+                                          session + '_' + probe_code,
+                                          session + '_tcat.' + probe_code + '.ap.xd_384_6_0.txt')
+            sync_file_500 = os.path.join(file_paths['external_path'], session, 'catgt_' + session,
+                                         session + '_' + probe_code,
+                                         session + '_tcat.' + probe_code + '.ap.xd_384_6_500.txt')
+            if not (os.path.isfile(sync_file_flex) or os.path.isfile(sync_file_500)):
                 path = os.path.join(file_paths['external_path'], session)
                 catgt(path, path, probe_code=probe_code)
 
@@ -31,8 +35,8 @@ def catgt(input_path, output_path, probe_code='imec0'):
 
     print(f'Running CatGT for {run_name}...')
     command = f'runit.bat -dir={directory} -run={run_name[0:-3]} -g={run_name[-1]},{run_name[-1]} ' \
-              f'-t=0,0 -prb='+probe_code[-1]+' -ap -xd=2,0,-1,6,0 ' \
-              f'-dest={output_path} -prb_fld -out_prb_fld -gblcar'
+              f'-t=0,0 -prb=' + probe_code[-1] + ' -ap -xd=2,0,-1,6,0 ' \
+                                                 f'-dest={output_path} -prb_fld -out_prb_fld -gblcar'
     # command = f'runit.bat -dir={directory} -run={run_name[0:-3]} -g={run_name[-1]},{run_name[-1]} -t=0,0 -prb=0 -ap -xd=2,0,-1,6,0' \
     #           f'-dest={output_path} -prb_fld -out_prb_fld -no_auto_sync -no_tshift'
     # command = f'runit.bat -dir={directory} -run={run_name[0:-3]} -g={run_name[-1]},{run_name[-1]} -t=0,0 -ap ' \
